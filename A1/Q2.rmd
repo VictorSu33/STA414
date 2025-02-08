@@ -1,0 +1,53 @@
+---
+title: "A1 Q2"
+author: "Victor Su"
+date: "2025-02-07"
+output: pdf_document
+---
+```{r}
+# Q2
+
+library(fpp2)
+library(ggplot2)
+
+aus = read.csv("A1\\AUS.csv", header = TRUE, stringsAsFactors = FALSE)
+
+# create simple exponential smoothing
+ses_aus = ses(aus$Value)
+
+summary(ses_aus)
+
+# plot fitted values
+autoplot(ts(aus$Value), series="Observed") + autolayer(fitted(ses_aus), series="ETS(ANN) Fitted")  + ggtitle("ETS(ANN) Model")
+
+# plot residuals
+autoplot(ts(residuals(ses_aus)), series = "Residuals")+ ggtitle("ETS(ANN) Model Residuals")
+
+# create time series with frequency for Seasonality
+aus_ts = ts(aus$Value, frequency=4)
+
+# create ETS(A,A,A)
+hw_aus = ets(aus_ts,model = "AAA")
+
+# plot decomposition
+autoplot(hw_aus) + ggtitle("ETS Decomposition of ETS(AAA)")
+
+# plot fitted values of model
+autoplot(aus_ts, series="Observed") + autolayer(fitted(hw_aus), series="Fitted")+ ggtitle("ETS(AAA) Model")
+
+# get model parameters
+alpha_hat = hw_aus$par["alpha"]
+beta_hat = hw_aus$par["beta"]
+gamma_hat = hw_aus$par["gamma"]
+
+cat("Fitted Level (alpha):", alpha_hat)
+cat("Fitted Trend (beta):", beta_hat)
+cat("Fitted Seasonality (gamma):", gamma_hat)
+
+# forecast 
+forecasts_2y = forecast(hw_aus, h = 8)
+
+# plot forecasts
+autoplot(aus_ts, series="Observed") + autolayer(fitted(hw_aus), series="Fitted")+ autolayer(forecasts_2y) + ggtitle("ETS(AAA) Model")
+```
+

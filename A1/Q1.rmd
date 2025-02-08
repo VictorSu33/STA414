@@ -1,0 +1,42 @@
+---
+title: "A1 Q1"
+author: "Victor Su"
+date: "2025-02-07"
+output: pdf_document
+---
+```{r}
+# Q1
+
+e_com = read.csv("A1\\E-Commerce.csv", header = TRUE, stringsAsFactors = FALSE)
+
+# Specify the year
+e_com$Year = as.numeric(substr(e_com$Quarter, 1,4))
+
+# Specify the indicator variables
+e_com$Q1 = as.factor(ifelse(substr(e_com$Quarter, 7,8)=="1",1,0))
+e_com$Q2 = as.factor(ifelse(substr(e_com$Quarter, 7,8)=="2",1,0))
+e_com$Q3 = as.factor(ifelse(substr(e_com$Quarter, 7,8)=="3",1,0))
+e_com$Q4 = as.factor(ifelse(substr(e_com$Quarter, 7,8)=="4",1,0))
+
+# Fit the model
+model_reg = lm(Value ~ Year + Q1 + Q2 + Q3 + Q4 -1, data = e_com)
+
+summary(model_reg)
+
+# plot results
+e_com$Time <- 1:nrow(e_com)
+e_com$Fitted <- predict(model_reg)
+
+library(ggplot2)
+
+ggplot(ts(residuals(model_reg)))
+ggplot(e_com, aes(x = Time)) + geom_line(aes(y = Value, color = "Actual"), size = 1) +   geom_line(aes(y = Fitted, color = "Fitted"), size = 1, linetype = "dashed") +  scale_x_continuous(breaks = e_com$Time, labels = e_com$Quarter) + 
+labs(title = "Actual vs. Fitted Values", x = "Time (Quarterly)", y = "Value") +theme_minimal() +theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  scale_color_manual(values = c("Actual" = "blue", "Fitted" = "red"))  
+
+# plot residuals
+residuals_df = data.frame(Time = e_com$Time, Residuals = residuals(model_reg))
+
+ggplot(residuals_df, aes(x = Time, y = Residuals)) + geom_line(color = "blue") + geom_hline(yintercept = 0, linetype = "dashed", color = "red") + ggtitle("Residual Plot of Regression Model") +
+  xlab("Time") + ylab("Residuals") + theme_minimal()
+```
+

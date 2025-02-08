@@ -1,0 +1,51 @@
+---
+title: "A1 Q3"
+author: "Victor Su"
+date: "2025-02-07"
+output: pdf_document
+---
+```{r}
+# Q3 
+library(astsa) 
+library(fpp2)
+
+# split data in half
+n = length(varve)
+first_half = varve[1:(n/2)]
+second_half = varve[(n/2 + 1):n]
+
+# calculate sample variances
+var_first_half = var(first_half)
+var_second_half = var(second_half)
+
+cat("Variance of First Half: ", var_first_half)
+cat("Variance of Second Half:", var_second_half)
+
+# take log of series and plot
+log_varve = log(varve)
+
+autoplot(log_varve) + ggtitle("Log Transformed Series")
+
+# autocorrelation of log series
+acf(log_varve)
+
+# take first differences and plot histogram and acf
+z_t = diff(log_varve)
+autoplot(z_t) + ggtitle("First Order Difference")
+
+hist(z_t) 
+acf(z_t)
+
+# calculate autocovariance and autocorrelation for z_t
+autocov_values = acf(z_t, type = "covariance", plot = FALSE)
+autocor_values =acf(z_t, type = "correlation", plot = FALSE)
+
+# get estimated values autocovariance with lag 0 and autocorrelation with lag 1
+gamma_0 = autocov_values$acf[1] 
+gamma_1 = autocov_values$acf[2]
+
+rho_1 = autocor_values$acf[2]
+
+print(gamma_0)
+print(rho_1)
+```
